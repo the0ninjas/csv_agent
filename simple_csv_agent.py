@@ -11,25 +11,40 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_core.tools import tool
 from langchain_experimental.agents import create_pandas_dataframe_agent
+import psycopg2
 
-llm = ChatOllama(
-    model="llama3.1",
-    temperature=0,
+load_dotenv()
+
+pg_config = {
+    'host': os.getenv('PG_HOST', '127.0.0.1'),
+    'port': int(os.getenv('PG_PORT', 5432)),
+    'dbname': os.getenv('PG_DB', 'precise_articles'),
+    'user': os.getenv('PG_USER', 'postgres'),
+    'password': os.getenv('PG_PASSWORD', '')
+}
+
+# llm = ChatOllama(
+#     model="llama3.1",
+#     temperature=0,
+# )
+
+# df = pd.read_csv(
+#     "data.csv"
+# )
+
+embed = OllamaEmbeddings(
+    model="nomic-embed-text"
 )
 
-df = pd.read_csv(
-    "data.csv"
-)
+# agent = create_pandas_dataframe_agent(
+#     llm,
+#     df,
+#     agent_type="tool-calling",
+#     verbose=False,
+#     return_intermediate_steps=True,
+#     allow_dangerous_code=True,
+# )
 
-agent = create_pandas_dataframe_agent(
-    llm,
-    df,
-    agent_type="tool-calling",
-    verbose=False,
-    return_intermediate_steps=True,
-    allow_dangerous_code=True,
-)
-
-response = agent.invoke("how many rows of data are in this file?")
-print(response['output'])
-print(response['intermediate_steps'][-1][0].tool_input.replace('; ', '\n'))
+# response = agent.invoke("how many rows of data are in this file?")
+# print(response['output'])
+# print(response['intermediate_steps'][-1][0].tool_input.replace('; ', '\n'))
