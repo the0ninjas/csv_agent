@@ -28,9 +28,6 @@ pg_config = {
 #     temperature=0,
 # )
 
-# df = pd.read_csv(
-#     "data.csv"
-# )
 
 embed = OllamaEmbeddings(
     model="nomic-embed-text"

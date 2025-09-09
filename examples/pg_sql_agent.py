@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from pgvector.sqlalchemy import Vector
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langgraph.prebuilt import create_react_agent
@@ -88,19 +89,43 @@ Guidelines:
     agent = create_react_agent(llm, tools, prompt=system_prompt)
     return agent
 
+def stream_question(agent, question: str):
+    print(f"Question: {question}\n--- Streaming steps ---")
+    # Use updates to see each tool node
+    for update in agent.stream({"messages": [{"role": "user", "content": question}]}, stream_mode="updates"):
+        for node, value in update.items():
+            print(f"[Node: {node}]")
+            msgs = value.get("messages")
+            if msgs:
+                last = msgs[-1]
+                try:
+                    last.pretty_print()
+                except Exception:
+                    print(last)
+                    
 def main():
     if len(sys.argv) < 2:
         print("Provide a natural language question, e.g.: python pg_sql_agent.py 'How many articles mention Deloitte?'")
         return 1
     question = sys.argv[1]
     agent = build_agent()
-    print(f"Question: {question}\n--- Streaming steps ---")
-    for step in agent.stream({"messages": [{"role": "user", "content": question}]}, stream_mode="values"):
-        msg = step["messages"][-1]
-        try:
-            msg.pretty_print()
-        except Exception:
-            print(msg)
+
+
+    # Prefer full streaming with tool observations
+    stream_question(agent, question)
+
+    # If the final message looks like raw SQL (no natural language), auto-execute it:
+    print("\n--- Ensuring execution / final answer ---")
+    result = agent.invoke({"messages": [{"role": "user", "content": question}]})
+    final_content = result["messages"][-1].content
+
+    # print(f"Question: {question}\n--- Streaming steps ---")
+    # for step in agent.stream({"messages": [{"role": "user", "content": question}]}, stream_mode="values"):
+    #     msg = step["messages"][-1]
+    #     try:
+    #         msg.pretty_print()
+    #     except Exception:
+    #         print(msg)
     return 0
 
 if __name__ == "__main__":

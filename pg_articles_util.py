@@ -143,6 +143,17 @@ class PostgresArticles:
             print(f"❌ Failed creating table: {e}")
             raise
 
+    def drop_table(self):
+        """Drop the articles table (if exists)."""
+        try:
+            conn = self._conn(); cur = conn.cursor()
+            cur.execute("DROP TABLE IF EXISTS articles CASCADE")
+            conn.commit(); cur.close(); conn.close()
+            print("🗑️ Dropped table 'articles'")
+        except Exception as e:
+            print(f"❌ Failed dropping table: {e}")
+            raise
+
     # --- CSV Import (Step 1) ---
     def import_csv(self, path: str) -> int:
         if not os.path.isfile(path):
@@ -326,6 +337,7 @@ def build_arg_parser():
 
     sub.add_parser("create-db")
     sub.add_parser("create-table")
+    sub.add_parser("drop-table")
 
     imp = sub.add_parser("import")
     imp.add_argument("path")
@@ -366,6 +378,8 @@ def main(argv=None):
         pg.ensure_database(); pg.ensure_extension(); pg.create_table()
     elif args.cmd == "create-table":
         pg.ensure_extension(); pg.create_table()
+    elif args.cmd == "drop-table":
+        pg.drop_table()
     elif args.cmd == "import":
         pg.ensure_extension(); pg.create_table(); pg.import_csv(args.path)
     elif args.cmd == "embed":

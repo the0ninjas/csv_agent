@@ -155,7 +155,7 @@ graph = graph_builder.compile(checkpointer=memory, interrupt_before=["execute_qu
 config = {"configurable": {"thread_id": "1"}}
 
 for step in graph.stream(
-    {"question": "How many articles in year 2024?"},
+    {"question": "Aggregate the articles by month and the company. how many entries are there?"},
     config,
     stream_mode="updates",
 ):

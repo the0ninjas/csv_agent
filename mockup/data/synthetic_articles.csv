@@ -1,0 +1,11 @@
+ArticleID,ArtDate,Month,Year,CompetName,KPMGTotalImpact,DeloitteTotalImpact,EYTotalImpact,PwCTotalImpact,Issue,Industry,Comments,SpokespersonName
+SYN-001,2025-07-02,Jul,2025,KPMG,5.2,1.0,0.0,0.0,GenAI strategy,Technology,"KPMG launches new generative AI advisory platform targeting mid-market clients.",Jane Doe
+SYN-002,2025-07-05,Jul,2025,Deloitte,0.5,6.3,0.0,0.0,Cloud migration,Technology,"Deloitte expands cloud migration offerings with strategic acquisition.",Alex Smith
+SYN-003,2025-07-08,Jul,2025,KPMG,7.8,0.0,0.0,0.0,Cyber security,Financial Services,"High impact report from KPMG on emerging cyber threats influences regulatory debate.",Jane Doe
+SYN-004,2025-07-12,Jul,2025,PwC,0.0,0.0,0.0,4.1,Tax reform,Energy,"PwC commentary on global tax reform momentum gains traction.",Maria Lee
+SYN-005,2025-07-15,Jul,2025,KPMG,2.1,0.0,0.0,0.0,Sustainability,Manufacturing,"KPMG highlights sustainable supply chain metrics in new whitepaper.",Jane Doe
+SYN-006,2025-07-18,Jul,2025,EY,0.0,0.0,3.9,0.0,GenAI strategy,Technology,"EY announces talent initiative around AI upskilling.",--
+SYN-007,2025-07-21,Jul,2025,KPMG,8.9,0.0,0.0,0.0,Digital transformation,Healthcare,"Major healthcare digital overhaul credited to KPMG advisory team.",John Roe
+SYN-008,2025-07-24,Jul,2025,KPMG,1.2,0.0,0.0,0.0,Cloud migration,Technology,"Brief mention of KPMG partnership on hybrid cloud deployment.",Jane Doe
+SYN-009,2025-07-27,Jul,2025,Deloitte,0.0,5.5,0.0,0.0,Cyber security,Technology,"Deloitte issues mid-year cyber resilience benchmark.",Alex Smith
+SYN-010,2025-07-30,Jul,2025,KPMG,9.4,0.0,0.0,0.0,Sustainability,Energy,"Flagship sustainability index from KPMG shapes investor dialogue.",Jane Doe

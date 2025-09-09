@@ -1,0 +1,9 @@
+.DS_Store
+.env
+/test
+/data
+/pgvector
+/__pycache__
+/.vscode
+memo.txt
+/pgvector_ext_src
