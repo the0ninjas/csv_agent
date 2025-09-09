@@ -109,6 +109,21 @@ def aggregate(state: GraphState) -> GraphState:
     if impact_col:
         pretty = CANONICAL_IMPACT_NAMES.get(impact_col, impact_col)
         results["company_impact_field"] = pretty
+        # Detect company name (dominant CompetName)
+        try:
+            cur.execute("""
+                SELECT CompetName, COUNT(*) AS c
+                FROM articles
+                WHERE CompetName IS NOT NULL AND TRIM(CompetName) <> ''
+                GROUP BY CompetName
+                ORDER BY c DESC
+                LIMIT 1
+            """)
+            row = cur.fetchone()
+            if row:
+                results["company_name"] = row[0]
+        except Exception as e:
+            state.setdefault("errors", []).append(f"aggregate company_name: {e}")
         # Average
         try:
             cur.execute(f"SELECT AVG({impact_col}) FROM articles WHERE {impact_col} IS NOT NULL")
@@ -118,6 +133,13 @@ def aggregate(state: GraphState) -> GraphState:
                 results["avg_kpmg_impact"] = results["avg_impact"]
         except Exception as e:
             state.setdefault("errors", []).append(f"aggregate avg_impact: {e}")
+        # Total impact
+        try:
+            cur.execute(f"SELECT SUM({impact_col}) FROM articles WHERE {impact_col} IS NOT NULL")
+            tot_val = cur.fetchone()[0]
+            results["total_impact"] = float(tot_val) if tot_val is not None else None
+        except Exception as e:
+            state.setdefault("errors", []).append(f"aggregate total_impact: {e}")
         # Max impact row
         try:
             cur.execute(f"SELECT articleid, {impact_col}, issue, spokespersonname FROM articles WHERE {impact_col} IS NOT NULL ORDER BY {impact_col} DESC NULLS LAST LIMIT 1")
@@ -143,6 +165,71 @@ def aggregate(state: GraphState) -> GraphState:
             results["impact_distribution"] = {b: int(c) for b, c in rows if b != 'null'}
         except Exception as e:
             state.setdefault("errors", []).append(f"aggregate impact_distribution: {e}")
+        # Top issues (by article count)
+        try:
+            cur.execute("""
+                SELECT issue, COUNT(*) AS c
+                FROM articles
+                WHERE issue IS NOT NULL AND TRIM(issue) <> ''
+                GROUP BY issue
+                ORDER BY c DESC
+                LIMIT 5
+            """)
+            rows = cur.fetchall()
+            results["top_issues"] = [{"issue": r[0], "article_count": int(r[1])} for r in rows]
+        except Exception as e:
+            state.setdefault("errors", []).append(f"aggregate top_issues: {e}")
+        # Top spokespersons by impact (and share)
+        try:
+            cur.execute(f"""
+                SELECT spokespersonname, SUM({impact_col}) AS s, COUNT(*) AS c
+                FROM articles
+                WHERE spokespersonname IS NOT NULL AND TRIM(spokespersonname) <> '' AND {impact_col} IS NOT NULL
+                GROUP BY spokespersonname
+                ORDER BY s DESC
+                LIMIT 5
+            """)
+            rows = cur.fetchall()
+            total_impact_val = results.get("total_impact") or 0.0
+            items = []
+            for name, s, c in rows:
+                share = (float(s) / float(total_impact_val) * 100.0) if total_impact_val else None
+                items.append({
+                    "spokespersonname": name,
+                    "impact_sum": float(s) if s is not None else None,
+                    "article_count": int(c),
+                    "impact_share_pct": round(share, 1) if share is not None else None,
+                })
+            if items:
+                results["top_spokespersons_by_impact"] = items
+                results["top_spokesperson_by_impact"] = items[0]
+        except Exception as e:
+            state.setdefault("errors", []).append(f"aggregate top_spokespersons_by_impact: {e}")
+        # Content samples (top-N by impact with comments)
+        try:
+            cur.execute(f"""
+                SELECT issue, spokespersonname, {impact_col} AS impact, comments
+                FROM articles
+                WHERE comments IS NOT NULL AND TRIM(comments) <> '' AND {impact_col} IS NOT NULL
+                ORDER BY {impact_col} DESC NULLS LAST
+                LIMIT 8
+            """)
+            rows = cur.fetchall()
+            samples = []
+            for issue, sp, impact, comments in rows:
+                text = (comments or "").strip()
+                if len(text) > 360:
+                    text = text[:357] + "..."
+                samples.append({
+                    "issue": issue,
+                    "spokespersonname": sp,
+                    "impact": float(impact) if impact is not None else None,
+                    "excerpt": text,
+                })
+            if samples:
+                results["content_samples"] = samples
+        except Exception as e:
+            state.setdefault("errors", []).append(f"aggregate content_samples: {e}")
     else:
         results["company_impact_field"] = None
         results["avg_impact"] = None
