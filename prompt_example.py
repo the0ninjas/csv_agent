@@ -63,6 +63,9 @@ with open('data/simplified/KPMG_July2024.json', 'r') as f:
 with open('data/simplified/PwC_Feb2025.json', 'r') as f:
     PwC_Feb2025 = json.load(f)
 
+with open('data/simplified/EY_Jan2025.json', 'r') as f:
+    EY_Jan2025 = json.load(f)
+
 EXAMPLES: List[Dict[str, Any]] = [
     {
         "articles": KPMG_July2024,
@@ -78,6 +81,13 @@ EXAMPLES: List[Dict[str, Any]] = [
             "Minor impact month: a UK Prime Minister reference to a PwC investment ranking dominated sparse coverage; no standout high-impact spokesperson beyond incidental mentions."
         ),
     },
+    {
+        "articles": EY_Jan2025,
+        "aggregates": compute_aggregates(EY_Jan2025), 
+        "summary": (
+            "Cherelle Murphy (19 Volume) delivered over three-quarters of EY’s economic Impact with commentary on RBA rate speculation following the release of inflation data and potential impact of Trump policies plus the ‘worrying trend’ of low interest in studying economics (ABC-digital/TV/radio, AFR, Sky News). Paula Gadsby (4 V) contributed almost a quarter of Impact with her opinion on RBA action on rates (AFR, The Australian)."
+        ),
+    }
 ]
 
     # { # Deloitte Apr2025
